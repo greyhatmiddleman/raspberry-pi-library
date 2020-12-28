@@ -59,7 +59,7 @@ simple_opencv () {
 }
 
 increase_dphys_swap () {
-	sudo sed -i 's/#CONF_MAXSWAP/CONF_MAXSWAP/' /etc/dphys-swapfile
+	sudo sed -i 's/^CONF_SWAPSIZE=100/CONF_SWAPSIZE=2048/' /etc/dphys-swapfile
 	sudo /etc/init.d/dphys-swapfile stop
 	sudo /etc/init.d/dphys-swapfile start
 }
@@ -105,7 +105,7 @@ compile_opencv () {
 }
 
 restore_dphys_swap () {
-	sudo sed -i 's/^CONF_MAXSWAP/#CONF_MAXSWAP/' /etc/dphys-swapfile
+	sudo sed -i 's/^CONF_SWAPSIZE=2048/CONF_SWAPSIZE=100/' /etc/dphys-swapfile
 	sudo /etc/init.d/dphys-swapfile stop
 	sudo /etc/init.d/dphys-swapfile start
 }
@@ -120,27 +120,30 @@ ln -s /usr/local/lib/python3.7/site-packages/cv2/python-3.7/cv2.so cv2.so
 unit_test () {
 cd ~
 workon cv
-python
-import cv2
-cv2.__version__
+python -c "import cv2 ;  print(cv2.__version__)"
 }
 
 
-#up-packages
-#image_io_packages
-#display_packages
-#matrix_packages
-#hdf5_qtgui
-#python_headers
-#python_modules
+up-packages
+
+image_io_packages
+display_packages
+matrix_packages
+hdf5_qtgui
+python_headers
+python_modules
+
 ##simple_opencv
-#increase_dphys_swap
+
+increase_dphys_swap
 
 prep_compile_opencv
 dep_opencv
 config_opencv
 compile_opencv
+
 restore_dphys_swap
+
 symlink_opencv
 ##unit_test
 
