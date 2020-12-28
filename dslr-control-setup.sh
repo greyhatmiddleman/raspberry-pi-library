@@ -1,5 +1,17 @@
 #!/bin/env bash
 
+
+unit_test () {
+	gphoto2 --version
+	gphoto2 --autodetect
+	gphoto2 --capture-image
+	gphoto2 --capture-image-and-download
+	gphoto2 --summary
+	gphoto2 --list-files
+}
+
+
+
 # enter commands
 
 sudo apt install git make autoconf libltdl-dev libusb-dev libexif-dev libpopt-dev libxml2-dev libjpeg-dev libgd-dev gettext autopoint
@@ -30,3 +42,7 @@ sudo ldconfig
 /usr/local/lib/libgphoto2/print-camera-list udev-rules version 201 group plugdev mode 0660 | sudo tee /etc/udev/rules.d/90-libgphoto2.rules
 
 /usr/local/lib/libgphoto2/print-camera-list hwdb | sudo tee /etc/udev/hwdb.d/20-gphoto.hwdb
+
+
+
+
