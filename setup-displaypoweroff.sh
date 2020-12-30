@@ -6,7 +6,14 @@ cat << EOF > /usr/local/bin/screen-off.sh
 sudo sh -c 'echo "0" > /sys/class/backlight/soc\:backlight/brightness'
 EOF
 
+cat << EOF > /usr/local/bin/screen-on.sh
+#!/bin/bash
+
+sudo sh -c 'echo "1" > /sys/class/backlight/soc\:backlight/brightness'
+EOF
+
 chmod +x /usr/local/bin/screen-off.sh
+chmod +x /usr/local/bin/screen-on.sh
 
 
 cat << EOF > /etc/systemd/system/screen-off.service
