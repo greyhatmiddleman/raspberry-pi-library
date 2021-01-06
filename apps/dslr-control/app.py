@@ -1,6 +1,7 @@
 #!/bin/env python3
 
 import os
+import evdev
 import pygame
 from pygame.locals import *
 from time import sleep
@@ -86,6 +87,34 @@ def Backlight(light):
 
 
 
+def initialize_tsdevice():
+    devices = [evdev.InputDevice(fn) for fn in evdev.list_devices()]
+    for device in devices:
+        print(device.name)
+        if device.name=="stmpe-ts":
+            return device
+    return None
+
+def ts_event(TDev):
+    global mx
+    global my
+    global mp
+    for event in TDev.read_loop():
+        if event.type == evdev.ecodes.EV_ABS:
+            #print(event.code)
+            if event.code == 0:
+                mx = event.value
+            elif event.code == 1:
+                my = event.value
+            elif event.code == 24:
+                mp = event.value
+        
+        if mx != 0 and my != 0 and mp == 0:
+            #print("X : " + str(mx) + "   Y : " + str(my) + "   Pressure : " + str(mp))
+            return mx, my, mp
+        else:
+            return 0, 0, 0
+
 def event_watcher():
     while True:
         for event in pygame.event.get():
@@ -99,14 +128,19 @@ def event_watcher():
 ####
 os.putenv('SDL_VIDEODRIVER', 'fbcon')
 os.putenv('SDL_FBDEV'      , '/dev/fb1')
-os.putenv('SDL_MOUSEDRV'   , 'TSLIB')
-os.putenv('SDL_MOUSEDEV'   , '/dev/input/touchscreen')
-os.putenv('TSLIB_CALIBFILE'   , '/etc/pointercal')
-os.putenv('TSLIB_TSDEVICE'   , '/dev/input/event1')
+#os.putenv('SDL_MOUSEDRV'   , 'TSLIB')
+#os.putenv('SDL_MOUSEDEV'   , '/dev/input/touchscreen')
+
+
+os.putenv('TSLIB_CONFFILE', '/etc/ts.conf')
+os.putenv('TSLIB_CALIBFILE', '/etc/pointercal')
+os.putenv('TSLIB_FBDEVICE', '/dev/fb0')
+os.putenv('TSLIB_TSDEVICE', '/dev/input/event1')
+
 
 # Init pygame and screen
 pygame.init()
-pygame.mouse.set_visible(True)
+pygame.mouse.set_visible(False)
 #pygame.mouse.set_cursor((8,8),(0,0),(0,0,0,0,0,0,0,0),(0,0,0,0,0,0,0,0))
 
 size = width, height = 320, 240
@@ -115,9 +149,22 @@ screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
 
 initialize_gpio()
 
+TSDev = initialize_tsdevice()
+mx=-1
+my=-1
+mp=-1
+
 try:
-    #while True:
-    event_watcher()
+    #ts_event(TSDev)
+    while True:
+        x, y, p = ts_event(TSDev)
+        if x > 0 and y > 0 and p == 0 :
+            print("{} {} {} ".format(x, y, p))
+            mx=-1
+            my=-1
+            mp=-1
+
+    #event_watcher()
         #sleep(0.5)
 except KeyboardInterrupt:
     pass
